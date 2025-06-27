@@ -40,7 +40,6 @@ jobs:
         name: get version_type
         run: |
           pr_title="${{ github.event.pull_request.title }}"
-          echo "Pull request title: $pr_title"
           version_type="minor"  # Default to minor if no specific tag is found
           if echo "$pr_title" | grep -qi '\[major\]'; then
             version_type="major"
@@ -63,17 +62,23 @@ jobs:
             major)
               echo "processing major version increment"
               ((major++))
+              echo "l1"
               minor=0
+              echo "l2"
               patch=0
+              echo "l3"
               ;;
             minor)
               echo "processing minor version increment"
               ((minor++))
+              echo "l4"
               patch=0
+              echo "l5"
               ;;
             patch)
               echo "processing patch version increment"
               ((patch++))
+              echo "l6"
               ;;
           esac
           new_version="v$major.$minor.$patch"
