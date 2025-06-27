@@ -1,0 +1,100 @@
+name: version
+run-name: version
+
+permissions:
+  contents: read
+  pull-requests: read
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - closed
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # - name: setup node
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version: 20
+      - name: setup git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - id: latest_version
+        name: get latest version
+        run: |
+          echo "Getting latest version..."
+          latest_tag=$(git describe --tags --abbrev=0) || echo "v0.0.0"
+          echo "Latest tag: $latest_tag"
+          latest_version=${latest_tag#v}
+          echo "latest_version=$latest_version" >> "$GITHUB_OUTPUT"
+      - id: version_type
+        name: get version_type
+        run: |
+          pr_title="${{ github.event.pull_request.title }}"
+          is_major=$(echo "$pr_title" | grep -ci "[major]")
+          is_minor=$(echo "$pr_title" | grep -ci "[minor]")
+          is_patch=$(echo "$pr_title" | grep -ci "[patch]")
+          version_type="minor"  # Default to minor if no specific tag is found
+          if [ "$is_major" -gt 0 ]; then
+            version_type="major"
+          elif [ "$is_minor" -gt 0 ]; then
+            version_type="minor"
+          elif [ "$is_patch" -gt 0 ]; then
+            version_type="patch"
+          fi
+          echo "version_type=$version_type" >> "$GITHUB_OUTPUT"
+      - id: new_version
+        name: generate new version
+        run: |
+          latest_version="${{ steps.latest_version.outputs.latest_version }}"
+          version_type="${{ steps.version_type.outputs.version_type }}"
+          echo "Latest version: $latest_version"
+          echo "Version type: $version_type"
+          IFS='.' read -r major minor patch <<< "$latest_version"
+          case "$version_type" in
+            major)
+              ((major++))
+              minor=0
+              patch=0
+              ;;
+            minor)
+              ((minor++))
+              patch=0
+              ;;
+            patch)
+              ((patch++))
+              ;;
+          esac
+          new_version="v$major.$minor.$patch"
+          echo "New version: $new_version"
+          echo "tag=$new_version" >> "$GITHUB_OUTPUT"
+      - name: set tag
+        run: git tag -a ${{ steps.new_version.outputs.tag }} -m "Release ${{ steps.new_version.outputs.tag }}"
+      - run: git push origin ${{ steps.new_version.outputs.tag }}
+
+      - name: install dependencies
+        run: |
+          echo "Installing dependencies..."
+          echo "Install done!"
+      - name: build
+        run: |
+          mkdir -p dist
+          cp src/* dist/
+      - name: pack
+        run: |
+          echo "Packing files..."
+          tar -czf public.tar.gz dist/*
+          echo "Packing done!"
+      - name: create release
+        run: gh release create ${{ steps.new_version.outputs.tag }} public.tar.gz --title "Release ${{ steps.new_version.outputs.tag }}" --generate-notes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
