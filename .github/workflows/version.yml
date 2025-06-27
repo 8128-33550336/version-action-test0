@@ -40,6 +40,8 @@ jobs:
         name: get version_type
         run: |
           pr_title="${{ github.event.pull_request.title }}"
+          echo "Pull request title: $pr_title"
+          echo "$pr_title" | grep -ci '\[major\]'
           is_major=$(echo "$pr_title" | grep -ci '\[major\]')
           is_minor=$(echo "$pr_title" | grep -ci '\[minor\]')
           is_patch=$(echo "$pr_title" | grep -ci '\[patch\]')
