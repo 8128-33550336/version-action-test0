@@ -40,9 +40,9 @@ jobs:
         name: get version_type
         run: |
           pr_title="${{ github.event.pull_request.title }}"
-          is_major=$(echo "$pr_title" | grep -ci "\[major\]")
-          is_minor=$(echo "$pr_title" | grep -ci "\[minor\]")
-          is_patch=$(echo "$pr_title" | grep -ci "\[patch\]")
+          is_major=$(echo "$pr_title" | grep -ci '\[major\]')
+          is_minor=$(echo "$pr_title" | grep -ci '\[minor\]')
+          is_patch=$(echo "$pr_title" | grep -ci '\[patch\]')
           version_type="minor"  # Default to minor if no specific tag is found
           if [ "$is_major" -gt 0 ]; then
             version_type="major"
