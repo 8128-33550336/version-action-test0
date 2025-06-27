@@ -41,21 +41,12 @@ jobs:
         run: |
           pr_title="${{ github.event.pull_request.title }}"
           echo "Pull request title: $pr_title"
-          echo "$pr_title" | grep -ci '\[major\]'
-          is_major=`echo "$pr_title" | grep -ci '\\[major\\]'`
-          echo "$pr_title" | grep -ci '\[minor\]'
-          is_minor=`echo "$pr_title" | grep -ci '\[minor\]'`
-          echo "$pr_title" | grep -ci '\[patch\]'
-          is_patch=`echo "$pr_title" | grep -ci '\[patch\]'`
-          echo "is_major=$is_major"
-          echo "is_minor=$is_minor"
-          echo "is_patch=$is_patch"
           version_type="minor"  # Default to minor if no specific tag is found
-          if [ "$is_major" -gt 0 ]; then
+          if echo "$pr_title" | grep -qi '\[major\]'; then
             version_type="major"
-          elif [ "$is_minor" -gt 0 ]; then
+          elif echo "$pr_title" | grep -qi '\[minor\]'; then
             version_type="minor"
-          elif [ "$is_patch" -gt 0 ]; then
+          elif echo "$pr_title" | grep -qi '\[patch\]'; then
             version_type="patch"
           fi
           echo "Version type determined: $version_type"
