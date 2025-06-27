@@ -32,7 +32,7 @@ jobs:
         name: get latest version
         run: |
           echo "Getting latest version..."
-          latest_tag=$(git describe --tags --abbrev=0) || echo "v0.0.0"
+          latest_tag=$(git describe --tags --abbrev=0 || echo "v0.0.0")
           echo "Latest tag: $latest_tag"
           latest_version=${latest_tag#v}
           echo "latest_version=$latest_version" >> "$GITHUB_OUTPUT"
@@ -51,6 +51,7 @@ jobs:
           elif [ "$is_patch" -gt 0 ]; then
             version_type="patch"
           fi
+          echo "Version type determined: $version_type"
           echo "version_type=$version_type" >> "$GITHUB_OUTPUT"
       - id: new_version
         name: generate new version
