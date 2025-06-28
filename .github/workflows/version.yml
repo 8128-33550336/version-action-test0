@@ -2,7 +2,7 @@ name: version
 run-name: version
 
 permissions:
-  contents: read
+  contents: write
   pull-requests: read
 
 on:
@@ -57,28 +57,21 @@ jobs:
           echo "Latest version: $latest_version"
           echo "Version type: $version_type"
           IFS='.' read -r major minor patch <<< "$latest_version"
-          echo "Current version: $major.$minor.$patch"
           case "$version_type" in
             major)
               echo "processing major version increment"
-              echo $((major++))
-              echo "l1"
+              : $((major++))
               minor=0
-              echo "l2"
               patch=0
-              echo "l3"
               ;;
             minor)
               echo "processing minor version increment"
-              echo $((minor++))
-              echo "l4"
+              : $((minor++))
               patch=0
-              echo "l5"
               ;;
             patch)
               echo "processing patch version increment"
-              echo $((patch++))
-              echo "l6"
+              : $((patch++))
               ;;
           esac
           new_version="v$major.$minor.$patch"
