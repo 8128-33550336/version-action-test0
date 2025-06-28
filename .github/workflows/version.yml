@@ -19,11 +19,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      # - name: setup node
-      #   uses: actions/setup-node@v4
-      #   with:
-      #     node-version: 20
+        with:
+          fetch-tags: true
       - name: setup git
         run: |
           git config --global user.name "github-actions[bot]"
@@ -32,7 +29,7 @@ jobs:
         name: get latest version
         run: |
           echo "Getting latest version..."
-          latest_tag=$(git describe --tags --abbrev=0) || echo "v0.0.0"
+          latest_tag=$(git describe --tags --abbrev=0 || echo "v0.0.0")
           echo "Latest tag: $latest_tag"
           latest_version=${latest_tag#v}
           echo "latest_version=$latest_version" >> "$GITHUB_OUTPUT"
@@ -48,6 +45,7 @@ jobs:
           elif echo "$pr_title" | grep -qi '\[patch\]'; then
             version_type="patch"
           fi
+          echo "Version type determined: $version_type"
           echo "version_type=$version_type" >> "$GITHUB_OUTPUT"
       - id: new_version
         name: generate new version
