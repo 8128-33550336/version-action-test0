@@ -61,7 +61,7 @@ jobs:
           case "$version_type" in
             major)
               echo "processing major version increment"
-              $((major++))
+              echo $((major++))
               echo "l1"
               minor=0
               echo "l2"
@@ -70,14 +70,14 @@ jobs:
               ;;
             minor)
               echo "processing minor version increment"
-              $((minor++))
+              echo $((minor++))
               echo "l4"
               patch=0
               echo "l5"
               ;;
             patch)
               echo "processing patch version increment"
-              $((patch++))
+              echo $((patch++))
               echo "l6"
               ;;
           esac
